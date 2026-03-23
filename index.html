@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heysen Results — SA 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --greens: #009949;
+  --greens-light: #00A651;
+  --greens-dark: #006630;
+  --alp: #E53440;
+  --lib: #0066CC;
+  --onp: #f0912c;
+  --ffp: #66B2FF;
+  --ind: #9ca3af;
+  --ajp: #7c3aed;
+  --afp: #ec4899;
+  --fga: #7C112E;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #fff;
+  color: #4d4d4d;
+  min-height: 100vh;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+
+.header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+.header h1 { font-size: 1.1rem; font-weight: 600; color: #777; }
+.header h1 strong { color: var(--greens); font-size: 1.4rem; display: block; }
+.header-right { text-align: right; font-size: 0.82rem; color: #777; }
+.header-right .updated { color: #4d4d4d; font-weight: 600; }
+
+.status-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.status-badge.recheck { background: #2563eb18; color: #2563eb; }
+.status-badge.counting { background: #f59e0b18; color: #b45309; }
+.status-badge.final { background: #00994918; color: var(--greens); }
+
+.controls { display: flex; gap: 8px; align-items: center; margin-top: 6px; justify-content: flex-end; }
+.btn {
+  background: #f0f4f2; border: 1px solid #dce5df;
+  color: #4d4d4d; padding: 5px 12px; border-radius: 6px;
+  cursor: pointer; font-size: 0.8rem;
+}
+.btn:hover { background: #dce5df; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.auto-label { font-size: 0.78rem; color: #777; }
+.countdown { font-variant-numeric: tabular-nums; }
+
+/* green hero banner */
+.hero {
+  background: linear-gradient(135deg, var(--greens-dark), var(--greens));
+  border-radius: 14px; padding: 28px 24px; margin-bottom: 20px;
+  position: relative; overflow: hidden; color: #fff;
+}
+.hero::after {
+  content: ''; position: absolute; top: -40%; right: -10%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label {
+  font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.06em; opacity: 0.85; margin-bottom: 4px;
+}
+.hero-pct { font-size: 3.2rem; font-weight: 800; line-height: 1.1; }
+.hero-sub { font-size: 1rem; margin-top: 4px; opacity: 0.9; }
+.hero-swing {
+  display: inline-block; margin-top: 8px; padding: 4px 12px;
+  background: rgba(255,255,255,0.18); border-radius: 20px;
+  font-size: 0.9rem; font-weight: 700;
+}
+.hero-context { font-size: 0.85rem; opacity: 0.75; margin-top: 10px; }
+
+/* cards + sections */
+.card {
+  background: #fff; border: 1px solid #dce5df; border-radius: 12px;
+  padding: 18px; margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.tcp-section {
+  background: #fff; border: 1px solid #dce5df; border-radius: 12px;
+  padding: 20px; margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.section-title {
+  font-size: 0.78rem; color: var(--greens); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 12px; font-weight: 700;
+}
+.grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin-bottom: 16px;
+}
+@media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* 2CP bar */
+.tcp-bar { height: 36px; border-radius: 8px; overflow: hidden; display: flex; }
+.tcp-bar .seg {
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9rem; color: #fff;
+  transition: width 0.5s ease;
+}
+.tcp-labels { display: flex; justify-content: space-between; margin-top: 10px; }
+.tcp-candidate .name { font-weight: 700; font-size: 1rem; color: #222; }
+.tcp-candidate .detail { font-size: 0.82rem; color: #777; }
+.tcp-candidate.right { text-align: right; }
+.tcp-margin { text-align: center; margin-top: 6px; font-size: 0.82rem; color: #777; }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th {
+  text-align: left; color: #777; font-weight: 500; font-size: 0.75rem;
+  text-transform: uppercase; letter-spacing: 0.03em;
+  padding: 5px 6px; border-bottom: 1px solid #dce5df;
+}
+td { padding: 7px 6px; border-bottom: 1px solid #dce5df; }
+tr:last-child td { border-bottom: none; }
+.r { text-align: right; font-variant-numeric: tabular-nums; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.bar-cell { width: 100px; }
+.bar-cell .bar { height: 5px; border-radius: 3px; transition: width 0.5s ease; }
+.fp-greens { background: rgba(0,153,73,0.08); }
+
+/* booth cards */
+.booth-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px; margin-top: 12px;
+}
+.booth-card {
+  background: #f5f7f6; border: 1px solid #dce5df; border-radius: 8px;
+  padding: 10px 12px; cursor: pointer; transition: all 0.15s;
+  position: relative; overflow: hidden;
+}
+.booth-card:hover { border-color: #c0d1c7; background: #f0f4f2; }
+.booth-card.expanded { grid-column: 1 / -1; }
+.booth-card .booth-name { font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+.booth-card .booth-type-badge {
+  font-size: 0.65rem; padding: 1px 5px; border-radius: 3px;
+  background: #dce5df; color: #777; margin-left: 4px; vertical-align: middle;
+}
+.booth-card .booth-leader { font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; }
+.booth-card .booth-detail { font-size: 0.75rem; color: #777; }
+.booth-card .booth-bar {
+  position: absolute; bottom: 0; left: 0; height: 3px;
+  transition: width 0.4s ease;
+}
+.booth-expanded-content { display: none; margin-top: 10px; font-size: 0.82rem; }
+.booth-card.expanded .booth-expanded-content { display: block; }
+.booth-mini-table { width: 100%; }
+.booth-mini-table td { padding: 3px 4px; border-bottom: 1px solid #dce5df; font-size: 0.8rem; }
+
+/* preference sim */
+.sim-section {
+  background: #fff; border: 1px solid #c0d1c7;
+  border-radius: 12px; padding: 20px; margin-bottom: 16px;
+}
+.sim-section .section-title { color: var(--greens); }
+.sim-intro { font-size: 0.85rem; color: #777; margin-bottom: 16px; line-height: 1.5; }
+
+.sim-round {
+  background: #f5f7f6; border: 1px solid #dce5df;
+  border-radius: 8px; padding: 14px; margin-bottom: 10px;
+}
+.sim-round-header {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 10px;
+}
+.sim-round-title { font-weight: 600; font-size: 0.88rem; }
+.sim-round-eliminated { font-size: 0.78rem; color: #777; }
+
+.sim-slider-row {
+  display: flex; align-items: center;
+  gap: 10px; margin-bottom: 10px;
+}
+.sim-slider-label { width: 60px; font-size: 0.78rem; font-weight: 600; flex-shrink: 0; }
+
+.sim-slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 12px; border-radius: 6px; background: #e0e5e2;
+  outline: none; cursor: pointer;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 24px; height: 24px; border-radius: 50%;
+  cursor: pointer; border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  background: var(--thumb-color, #555);
+}
+.sim-slider::-moz-range-thumb {
+  width: 24px; height: 24px; border-radius: 50%;
+  cursor: pointer; border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  background: var(--thumb-color, #555);
+}
+.sim-slider:hover { background: #d0d8d3; }
+.sim-slider:active::-webkit-slider-thumb { transform: scale(1.15); }
+
+.sim-slider-value {
+  width: 42px; text-align: right; font-size: 0.78rem;
+  font-variant-numeric: tabular-nums; color: #777;
+}
+
+.sim-result {
+  position: sticky; bottom: 0; z-index: 10;
+  background: #fff; border-top: 2px solid #dce5df;
+  padding: 12px 16px; margin: 12px -18px -18px -18px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+}
+.sim-result-bar {
+  height: 32px; border-radius: 6px; overflow: hidden;
+  display: flex; margin-bottom: 8px;
+}
+.sim-result-bar .seg {
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem; color: #fff;
+  transition: width 0.3s ease;
+}
+.sim-result-labels { display: flex; justify-content: space-between; font-size: 0.85rem; }
+.sim-result-verdict { text-align: center; margin-top: 6px; font-size: 1rem; font-weight: 700; }
+.sim-result .elim-path { font-size: 0.72rem; color: #777; margin-bottom: 6px; line-height: 1.6; }
+
+.sim-preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.sim-preset {
+  background: #f0f4f2; border: 1px solid #dce5df;
+  color: #777; padding: 4px 10px; border-radius: 5px;
+  cursor: pointer; font-size: 0.75rem;
+}
+.sim-preset:hover,
+.sim-preset.active {
+  border-color: var(--greens); color: var(--greens);
+  background: rgba(0,153,73,0.08);
+}
+
+.stat-row {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; font-size: 0.85rem;
+}
+.stat-row .label { color: #777; }
+.stat-row .value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.progress-bar-bg {
+  height: 6px; background: #dce5df; border-radius: 3px;
+  overflow: hidden; margin-top: 8px;
+}
+.progress-bar-fill {
+  height: 100%; background: var(--greens);
+  border-radius: 3px; transition: width 0.5s;
+}
+
+#loading { text-align: center; padding: 80px; color: #777; font-size: 1.1rem; }
+#error { text-align: center; padding: 40px; color: #ef4444; display: none; }
+.poll-info { font-size: 0.72rem; color: #777; margin-top: 4px; text-align: right; }
+.greens-highlight { color: var(--greens); }
+</style>
+</head>
+<body>
+
+<div id="loading">Loading Heysen results...</div>
+<div id="error"></div>
+
+<div id="app" style="display:none">
+<div class="container">
+
+  <div class="header">
+    <h1><strong>Heysen</strong>SA State Election 2026</h1>
+    <div class="header-right">
+      <div class="updated" id="lastUpdated">--</div>
+      <span class="status-badge" id="electionStatus">--</span>
+      <div class="controls">
+        <button class="btn" id="refreshBtn" onclick="manualRefresh()">Refresh</button>
+        <label class="auto-label">
+          <input type="checkbox" id="autoRefresh" checked onchange="toggleAutoRefresh()"> Auto
+          <span class="countdown" id="countdown"></span>
+        </label>
+      </div>
+      <div class="poll-info" id="pollInfo"></div>
+    </div>
+  </div>
+
+  <div class="hero" id="hero"></div>
+
+  <div class="tcp-section" id="tcpSection">
+    <div class="section-title">Official Two-Candidate Preferred Count</div>
+    <div class="tcp-bar" id="tcpBar"></div>
+    <div class="tcp-labels" id="tcpLabels"></div>
+    <div class="tcp-margin" id="tcpMargin"></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">First Preferences</div>
+      <table id="firstPrefs">
+        <thead><tr><th></th><th>Candidate</th><th class="r">Votes</th><th class="r">%</th><th class="bar-cell"></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="section-title">Count Progress</div>
+      <div id="statsContent"></div>
+    </div>
+  </div>
+
+  <div class="sim-section">
+    <div class="section-title">Preference Flow Simulator</div>
+    <div class="sim-intro">
+      Adjust sliders to model different preference scenarios.
+      Candidates are eliminated from the bottom &mdash; see how flows change the final result.
+    </div>
+    <div class="sim-preset-row">
+      <button class="sim-preset active" onclick="applyPreset('even')">Even Split</button>
+      <span style="color:#777;font-size:0.75rem;padding:4px 2px">GRN win scenarios:</span>
+      <button class="sim-preset" onclick="applyScenario(0)" id="sc0">Progressive</button>
+      <button class="sim-preset" onclick="applyScenario(1)" id="sc1">Hills community</button>
+      <button class="sim-preset" onclick="applyScenario(2)" id="sc2">Anti-establishment</button>
+    </div>
+    <div id="simRounds"></div>
+    <div class="sim-result" id="simResult"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Booth-by-Booth (tap to expand)</div>
+    <div class="booth-grid" id="boothGrid"></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+var API = '/api';
+var ELECTION_DATE = '2026-03-21';
+var DISTRICT = 'Heysen';
+
+// ABC notional 2022 on 2026 boundaries — raw 2022 was 20.7% but redistribution
+// shifted some booths between electorates so the comparable figure is 19.7%
+var GREENS_2022_PCT = 19.7;
+
+var staticData = null, changeData = null, dataVersion = 0;
+var autoRefreshTimer, countdownTimer, secondsLeft = 60;
+var candidateVotes = {}, candidates = [], totalFormal = 0;
+var simFlows = {};
+
+var PARTY_COLORS = {
+  GRN: 'var(--greens)', ALP: 'var(--alp)', LIB: 'var(--lib)',
+  ONP: 'var(--onp)', FFP: 'var(--ffp)', IND: 'var(--ind)',
+  AJP: 'var(--ajp)', AFP: 'var(--afp)', FGA: 'var(--fga)'
+};
+function pc(id) { return PARTY_COLORS[id] || '#666'; }
+
+// ---- data fetching ----
+
+async function fetchStatic() {
+  var res = await fetch(API + '/HAStatic/' + ELECTION_DATE);
+  var data = await res.json();
+  return data.districts.find(function(d) { return d.districtName === DISTRICT; });
+}
+
+async function fetchChanges() {
+  var res = await fetch(API + '/HAChange/' + ELECTION_DATE + '/' + dataVersion);
+  if (res.status === 304) return null;
+  var data = await res.json();
+  dataVersion = data.dataVersion;
+  return {
+    lastUpdated: data.lastUpdated,
+    electionStatus: data.electionStatus,
+    district: data.districts.find(function(d) { return d.districtId === DISTRICT; })
+  };
+}
+
+async function init() {
+  try {
+    staticData = await fetchStatic();
+    var changes = await fetchChanges();
+    if (changes) changeData = changes;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = '';
+    computeData();
+    render();
+    initSimulator();
+    startAutoRefresh();
+  } catch (e) {
+    document.getElementById('loading').style.display = 'none';
+    var err = document.getElementById('error');
+    err.style.display = '';
+    err.textContent = 'Failed to load: ' + e.message;
+  }
+}
+
+async function refresh() {
+  try {
+    var changes = await fetchChanges();
+    if (changes) {
+      changeData = changes;
+      computeData();
+      render();
+      runSimulation();
+    }
+    document.getElementById('pollInfo').textContent =
+      'Last polled: ' + new Date().toLocaleTimeString('en-AU');
+  } catch (e) {
+    console.error('Refresh failed:', e);
+  }
+}
+
+async function manualRefresh() {
+  var btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '...';
+  dataVersion = 0; // force full reload
+  await refresh();
+  btn.disabled = false;
+  btn.textContent = 'Refresh';
+  secondsLeft = 60;
+}
+
+function startAutoRefresh() {
+  clearInterval(autoRefreshTimer);
+  clearInterval(countdownTimer);
+  secondsLeft = 60;
+  autoRefreshTimer = setInterval(function() { refresh(); secondsLeft = 60; }, 60000);
+  countdownTimer = setInterval(function() {
+    if (secondsLeft > 0) secondsLeft--;
+    document.getElementById('countdown').textContent = '(' + secondsLeft + 's)';
+  }, 1000);
+}
+
+function toggleAutoRefresh() {
+  if (document.getElementById('autoRefresh').checked) {
+    startAutoRefresh();
+  } else {
+    clearInterval(autoRefreshTimer);
+    clearInterval(countdownTimer);
+    document.getElementById('countdown').textContent = '';
+  }
+}
+
+// ---- data processing ----
+
+function computeData() {
+  if (!staticData || !changeData) return;
+  candidates = staticData.candidates;
+  var booths = changeData.district.pollingPlaces;
+
+  candidateVotes = {};
+  candidates.forEach(function(c) { candidateVotes[c.candidateId] = { votes: 0, tcp: 0 }; });
+  totalFormal = 0;
+  var totalInformal = 0, boothsCounted = 0;
+
+  booths.forEach(function(booth) {
+    if (booth.pollingCandidates.some(function(c) { return c.formalVotes > 0; })) boothsCounted++;
+    totalInformal += booth.informalVotes || 0;
+    booth.pollingCandidates.forEach(function(p) {
+      if (candidateVotes[p.candidateId]) {
+        candidateVotes[p.candidateId].votes += p.formalVotes;
+        candidateVotes[p.candidateId].tcp += p.twoCandidatePref || 0;
+      }
+      totalFormal += p.formalVotes;
+    });
+  });
+
+  window._stats = {
+    totalFormal: totalFormal,
+    totalInformal: totalInformal,
+    totalVotes: totalFormal + totalInformal,
+    enrolled: staticData.districtEnrolled,
+    boothsCounted: boothsCounted,
+    totalBooths: staticData.pollingPlaces.length,
+    booths: booths
+  };
+}
+
+// ---- rendering ----
+
+function render() {
+  if (!staticData || !changeData) return;
+  var s = window._stats;
+
+  var updated = new Date(changeData.lastUpdated);
+  document.getElementById('lastUpdated').textContent = updated.toLocaleString('en-AU', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+  });
+  var statusEl = document.getElementById('electionStatus');
+  statusEl.textContent = changeData.electionStatus;
+  statusEl.className = 'status-badge ' + changeData.electionStatus;
+
+  // hero
+  var greens = candidates.find(function(c) { return c.partyId === 'GRN'; });
+  var greensVotes = candidateVotes[greens.candidateId].votes;
+  var greensPct = greensVotes / totalFormal * 100;
+  var swing = greensPct - GREENS_2022_PCT;
+
+  var alp = candidates.find(function(c) { return c.partyId === 'ALP'; });
+  var alpPct = candidateVotes[alp.candidateId].votes / totalFormal * 100;
+  var gapToALP = alpPct - greensPct;
+
+  document.getElementById('hero').innerHTML =
+    '<div class="hero-label">Greens First Preference</div>' +
+    '<div class="hero-pct">' + greensPct.toFixed(1) + '%</div>' +
+    '<div class="hero-sub">' + greensVotes.toLocaleString() + ' votes &mdash; ' + greens.candidateName + '</div>' +
+    '<div class="hero-swing">+' + swing.toFixed(1) + '% swing from 2022</div>' +
+    '<div class="hero-context">Just ' + gapToALP.toFixed(1) + '% behind ALP for second place. 2022 notional: ' + GREENS_2022_PCT + '%</div>';
+
+  renderTCP();
+  renderFirstPrefs();
+  renderStats(s);
+  renderBooths(s.booths);
+
+  document.getElementById('pollInfo').textContent =
+    'Last polled: ' + new Date().toLocaleTimeString('en-AU');
+}
+
+function renderTCP() {
+  var tcpCands = candidates
+    .filter(function(c) { return candidateVotes[c.candidateId].tcp > 0; })
+    .map(function(c) { return Object.assign({}, c, { tcp: candidateVotes[c.candidateId].tcp }); })
+    .sort(function(a, b) { return b.tcp - a.tcp; });
+
+  if (tcpCands.length < 2) {
+    document.getElementById('tcpSection').style.display = 'none';
+    return;
+  }
+  document.getElementById('tcpSection').style.display = '';
+
+  var total = tcpCands[0].tcp + tcpCands[1].tcp;
+  var p1 = tcpCands[0].tcp / total * 100;
+  var p2 = tcpCands[1].tcp / total * 100;
+  var margin = tcpCands[0].tcp - tcpCands[1].tcp;
+
+  document.getElementById('tcpBar').innerHTML =
+    '<div class="seg" style="width:' + p1 + '%;background:' + pc(tcpCands[0].partyId) + '">' + p1.toFixed(1) + '%</div>' +
+    '<div class="seg" style="width:' + p2 + '%;background:' + pc(tcpCands[1].partyId) + '">' + p2.toFixed(1) + '%</div>';
+
+  document.getElementById('tcpLabels').innerHTML =
+    '<div class="tcp-candidate"><div class="name">' + tcpCands[0].candidateName + '</div><div class="detail">' + tcpCands[0].partyName + ' &mdash; ' + tcpCands[0].tcp.toLocaleString() + ' votes</div></div>' +
+    '<div class="tcp-candidate right"><div class="name">' + tcpCands[1].candidateName + '</div><div class="detail">' + tcpCands[1].partyName + ' &mdash; ' + tcpCands[1].tcp.toLocaleString() + ' votes</div></div>';
+
+  document.getElementById('tcpMargin').textContent =
+    'Margin: ' + margin.toLocaleString() + ' votes (' + (p1 - p2).toFixed(1) + '%)';
+}
+
+function renderFirstPrefs() {
+  var sorted = candidates
+    .map(function(c) { return Object.assign({}, c, { v: candidateVotes[c.candidateId].votes }); })
+    .sort(function(a, b) { return b.v - a.v; });
+  var max = sorted[0] ? sorted[0].v : 1;
+
+  document.querySelector('#firstPrefs tbody').innerHTML = sorted.map(function(c) {
+    var pct = c.v / totalFormal * 100;
+    var isGreens = c.partyId === 'GRN';
+    return '<tr class="' + (isGreens ? 'fp-greens' : '') + '">' +
+      '<td><span class="dot" style="background:' + pc(c.partyId) + '"></span></td>' +
+      '<td>' + c.candidateName + ' <span style="color:#777;font-size:0.75rem">' + c.partyId + '</span></td>' +
+      '<td class="r">' + c.v.toLocaleString() + '</td>' +
+      '<td class="r" style="' + (isGreens ? 'color:var(--greens-light);font-weight:700' : 'color:#777') + '">' + pct.toFixed(1) + '%</td>' +
+      '<td class="bar-cell"><div class="bar" style="width:' + (c.v / max * 100) + '%;background:' + pc(c.partyId) + '"></div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderStats(s) {
+  var turnout = s.totalVotes / s.enrolled * 100;
+  var informal = s.totalInformal / s.totalVotes * 100;
+  var boothPct = s.boothsCounted / s.totalBooths * 100;
+
+  document.getElementById('statsContent').innerHTML =
+    '<div class="stat-row"><span class="label">Enrolled</span><span class="value">' + s.enrolled.toLocaleString() + '</span></div>' +
+    '<div class="stat-row"><span class="label">Votes counted</span><span class="value">' + s.totalVotes.toLocaleString() + '</span></div>' +
+    '<div class="stat-row"><span class="label">Turnout</span><span class="value">' + turnout.toFixed(1) + '%</span></div>' +
+    '<div class="stat-row"><span class="label">Formal</span><span class="value">' + s.totalFormal.toLocaleString() + '</span></div>' +
+    '<div class="stat-row"><span class="label">Informal</span><span class="value">' + s.totalInformal.toLocaleString() + ' (' + informal.toFixed(1) + '%)</span></div>' +
+    '<div class="stat-row"><span class="label">Booths</span><span class="value">' + s.boothsCounted + ' / ' + s.totalBooths + '</span></div>' +
+    '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + boothPct + '%"></div></div>';
+}
+
+function renderBooths(booths) {
+  var sorted = candidates
+    .map(function(c) { return Object.assign({}, c, { v: candidateVotes[c.candidateId].votes }); })
+    .sort(function(a, b) { return b.v - a.v; });
+
+  var boothData = booths.map(function(b) {
+    var votes = {}, total = 0;
+    b.pollingCandidates.forEach(function(p) {
+      votes[p.candidateId] = p.formalVotes;
+      total += p.formalVotes;
+    });
+    var maxId = null, maxV = 0;
+    Object.keys(votes).forEach(function(id) {
+      if (votes[id] > maxV) { maxV = votes[id]; maxId = +id; }
+    });
+    var leader = candidates.find(function(c) { return c.candidateId === maxId; });
+    var grn = candidates.find(function(c) { return c.partyId === 'GRN'; });
+    var greensPct = total > 0 ? (votes[grn.candidateId] || 0) / total * 100 : 0;
+    return Object.assign({}, b, { votes: votes, total: total, leader: leader, greensPct: greensPct });
+  }).sort(function(a, b) { return b.greensPct - a.greensPct; });
+
+  document.getElementById('boothGrid').innerHTML = boothData.map(function(b, idx) {
+    var isEVC = b.pollingPlaceTypeIdName === 'EVC';
+
+    var top4 = ['GRN', 'LIB', 'ALP', 'ONP'].map(function(pid) {
+      var c = candidates.find(function(x) { return x.partyId === pid; });
+      var v = c ? (b.votes[c.candidateId] || 0) : 0;
+      var pct = b.total > 0 ? v / b.total * 100 : 0;
+      return { pid: pid, pct: pct };
+    }).sort(function(a, b) { return b.pct - a.pct; });
+
+    var partySpans = top4.map(function(p) {
+      var bold = p.pid === 'GRN' ? 'font-weight:700;' : '';
+      return '<span style="color:' + pc(p.pid) + ';' + bold + '">' + p.pid + ' ' + p.pct.toFixed(1) + '%</span>';
+    }).join(' ');
+
+    var detailRows = sorted.map(function(c) {
+      var v = b.votes[c.candidateId] || 0;
+      var pct = b.total > 0 ? (v / b.total * 100).toFixed(1) : '0.0';
+      var isLeader = b.leader && c.candidateId === b.leader.candidateId;
+      return '<tr>' +
+        '<td><span class="dot" style="background:' + pc(c.partyId) + '"></span></td>' +
+        '<td>' + c.partyId + '</td>' +
+        '<td class="r" style="' + (isLeader ? 'font-weight:700' : '') + '">' + v + '</td>' +
+        '<td class="r" style="color:#777">' + pct + '%</td></tr>';
+    }).join('');
+
+    return '<div class="booth-card" onclick="toggleBooth(this)" data-idx="' + idx + '">' +
+      '<div class="booth-name">' + b.pollingPlaceName +
+        (isEVC ? '<span class="booth-type-badge">EVC</span>' : '') +
+        ' <span style="color:#777;font-weight:400;font-size:0.75rem">' + b.total + '</span></div>' +
+      '<div class="booth-detail" style="margin-top:4px;line-height:1.6">' + partySpans + '</div>' +
+      '<div class="booth-bar" style="width:' + b.greensPct + '%;background:var(--greens)"></div>' +
+      '<div class="booth-expanded-content"><table class="booth-mini-table">' + detailRows + '</table></div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleBooth(el) { el.classList.toggle('expanded'); }
+
+// ---- preference flow simulator ----
+
+function getEvenFlows() {
+  var parties = ['GRN', 'ALP', 'LIB', 'ONP', 'FFP', 'IND', 'AJP', 'AFP', 'FGA'];
+  var flows = {};
+  parties.forEach(function(ep) {
+    var remaining = parties.filter(function(p) { return p !== ep; });
+    var share = Math.floor(100 / remaining.length);
+    flows[ep] = {};
+    remaining.forEach(function(p, i) {
+      flows[ep][p] = (i === 0) ? 100 - share * (remaining.length - 1) : share;
+    });
+  });
+  return flows;
+}
+
+// Each of these actually produces a Greens win when run through the sim.
+// The key: Greens trail ALP by 282 first-pref votes. ONP (2960 votes) is
+// the kingmaker — Greens need roughly 15-22% of ONP prefs to overtake ALP,
+// then win the final two on ALP prefs flowing back.
+var WIN_SCENARIOS = [
+  { name: 'Progressive groundswell',
+    flows: {
+      FGA: { ONP: 30, LIB: 35, FFP: 10, ALP: 8, GRN: 8, AFP: 5, IND: 4 },
+      AFP: { LIB: 30, FFP: 18, ONP: 12, GRN: 18, ALP: 12, IND: 5, FGA: 5 },
+      FFP: { LIB: 35, GRN: 22, ALP: 15, ONP: 12, IND: 6, AFP: 5, FGA: 5 },
+      AJP: { GRN: 82, ALP: 8, IND: 4, LIB: 3, ONP: 1, FFP: 1, AFP: 1 },
+      IND: { GRN: 50, ALP: 22, LIB: 14, ONP: 7, FFP: 4, AFP: 2, FGA: 1 },
+      ONP: { LIB: 42, GRN: 18, ALP: 15, FFP: 10, FGA: 6, IND: 5, AFP: 4 },
+      GRN: { ALP: 75, LIB: 15, ONP: 5, IND: 3, FFP: 1, AFP: 1 },
+      ALP: { GRN: 68, LIB: 18, IND: 5, ONP: 4, FFP: 3, AFP: 2 },
+      LIB: { ALP: 30, ONP: 25, GRN: 20, FFP: 15, IND: 5, AFP: 5 }
+    }},
+  { name: 'Hills community vote',
+    flows: {
+      FGA: { ONP: 28, LIB: 32, FFP: 10, ALP: 10, GRN: 10, AFP: 5, IND: 5 },
+      AFP: { LIB: 28, FFP: 18, GRN: 20, ONP: 10, ALP: 14, IND: 5, FGA: 5 },
+      FFP: { LIB: 30, GRN: 25, ALP: 15, ONP: 12, IND: 8, AFP: 5, FGA: 5 },
+      AJP: { GRN: 78, ALP: 10, IND: 5, LIB: 3, ONP: 2, FFP: 1, AFP: 1 },
+      IND: { GRN: 55, ALP: 18, LIB: 14, ONP: 6, FFP: 4, AFP: 2, FGA: 1 },
+      ONP: { LIB: 40, GRN: 20, ALP: 14, FFP: 10, FGA: 7, IND: 5, AFP: 4 },
+      GRN: { ALP: 72, LIB: 18, ONP: 5, IND: 3, FFP: 1, AFP: 1 },
+      ALP: { GRN: 70, LIB: 16, IND: 5, ONP: 4, FFP: 3, AFP: 2 },
+      LIB: { ALP: 28, ONP: 22, GRN: 22, FFP: 15, IND: 8, AFP: 5 }
+    }},
+  { name: 'Anti-establishment tide',
+    flows: {
+      FGA: { ONP: 25, LIB: 30, GRN: 15, FFP: 10, ALP: 8, AFP: 7, IND: 5 },
+      AFP: { GRN: 22, LIB: 28, FFP: 15, ONP: 12, ALP: 12, IND: 6, FGA: 5 },
+      FFP: { GRN: 25, LIB: 30, ALP: 15, ONP: 12, IND: 8, AFP: 5, FGA: 5 },
+      AJP: { GRN: 85, ALP: 6, IND: 3, LIB: 3, ONP: 1, FFP: 1, AFP: 1 },
+      IND: { GRN: 48, ALP: 20, LIB: 16, ONP: 8, FFP: 4, AFP: 2, FGA: 2 },
+      ONP: { LIB: 38, GRN: 22, ALP: 14, FFP: 10, FGA: 7, IND: 5, AFP: 4 },
+      GRN: { ALP: 75, LIB: 15, ONP: 5, IND: 3, FFP: 1, AFP: 1 },
+      ALP: { GRN: 72, LIB: 15, IND: 5, ONP: 4, FFP: 2, AFP: 2 },
+      LIB: { ALP: 25, GRN: 25, ONP: 22, FFP: 15, IND: 8, AFP: 5 }
+    }}
+];
+
+function applyScenario(idx) {
+  simFlows = JSON.parse(JSON.stringify(WIN_SCENARIOS[idx].flows));
+  document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('sc' + idx).classList.add('active');
+  renderSimRounds();
+  runSimulation();
+}
+
+function applyPreset(name) {
+  document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.querySelector('.sim-preset[onclick*="' + name + '"]');
+  if (btn) btn.classList.add('active');
+  if (name === 'even') simFlows = getEvenFlows();
+  renderSimRounds();
+  runSimulation();
+}
+
+function initSimulator() {
+  simFlows = getEvenFlows();
+  renderSimRounds();
+  runSimulation();
+}
+
+var MINOR_PARTIES = ['FGA', 'AFP', 'FFP', 'AJP', 'IND', 'ONP'];
+
+function renderSimRounds() {
+  var sorted = candidates
+    .map(function(c) { return Object.assign({}, c, { v: candidateVotes[c.candidateId].votes }); })
+    .sort(function(a, b) { return a.v - b.v; });
+
+  // only show slider rounds for minor parties
+  var eliminationOrder = sorted.filter(function(c) { return MINOR_PARTIES.indexOf(c.partyId) >= 0; });
+
+  var container = document.getElementById('simRounds');
+  container.innerHTML = eliminationOrder.map(function(elim, roundIdx) {
+    var flows = simFlows[elim.partyId] || {};
+    var alreadyEliminated = eliminationOrder.slice(0, roundIdx).map(function(e) { return e.partyId; });
+    var remaining = candidates
+      .filter(function(c) { return c.partyId !== elim.partyId && alreadyEliminated.indexOf(c.partyId) < 0; })
+      .sort(function(a, b) { return (flows[b.partyId] || 0) - (flows[a.partyId] || 0); });
+
+    var sliders = remaining.map(function(c) {
+      var val = flows[c.partyId] || 0;
+      return '<div class="sim-slider-row">' +
+        '<span class="sim-slider-label" style="color:' + pc(c.partyId) + '">' + c.partyId + '</span>' +
+        '<input type="range" class="sim-slider" min="0" max="100" value="' + val + '"' +
+        ' style="--thumb-color:' + pc(c.partyId) + '"' +
+        ' data-elim="' + elim.partyId + '" data-target="' + c.partyId + '"' +
+        ' oninput="updateFlow(this)">' +
+        '<span class="sim-slider-value" id="sv-' + elim.partyId + '-' + c.partyId + '">' + val + '%</span>' +
+      '</div>';
+    }).join('');
+
+    return '<div class="sim-round">' +
+      '<div class="sim-round-header">' +
+        '<span class="sim-round-title">Round ' + (roundIdx + 1) + ': Eliminate <span style="color:' + pc(elim.partyId) + '">' + elim.partyId + '</span></span>' +
+        '<span class="sim-round-eliminated"><span id="rv-' + elim.partyId + '">' + elim.v.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
+      '</div>' + sliders + '</div>';
+  }).join('');
+}
+
+function updateFlow(slider) {
+  var elim = slider.dataset.elim;
+  var target = slider.dataset.target;
+  var val = parseInt(slider.value);
+
+  if (!simFlows[elim]) simFlows[elim] = {};
+  simFlows[elim][target] = val;
+
+  // normalise: keep total at 100 by scaling other sliders proportionally
+  var flows = simFlows[elim];
+  var others = Object.keys(flows).filter(function(k) { return k !== target; });
+  var othersTotal = others.reduce(function(s, k) { return s + (flows[k] || 0); }, 0);
+  var remaining = 100 - val;
+
+  if (othersTotal > 0) {
+    others.forEach(function(k) {
+      flows[k] = Math.round(flows[k] / othersTotal * remaining);
+    });
+    var newTotal = Object.keys(flows).reduce(function(s, k) { return s + flows[k]; }, 0);
+    if (newTotal !== 100 && others.length > 0) flows[others[0]] += 100 - newTotal;
+  } else if (others.length > 0) {
+    var each = Math.floor(remaining / others.length);
+    others.forEach(function(k) { flows[k] = each; });
+    flows[others[0]] += remaining - each * others.length;
+  }
+
+  Object.keys(flows).forEach(function(k) {
+    var label = document.getElementById('sv-' + elim + '-' + k);
+    if (label) label.textContent = flows[k] + '%';
+    var sl = document.querySelector('input[data-elim="' + elim + '"][data-target="' + k + '"]');
+    if (sl) sl.value = flows[k];
+  });
+
+  document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
+  runSimulation();
+}
+
+function runSimulation() {
+  // preferential count: eliminate lowest, distribute, repeat until 2 remain
+  var tally = {};
+  candidates.forEach(function(c) { tally[c.partyId] = candidateVotes[c.candidateId].votes; });
+
+  var eliminated = {};
+  var roundLog = [];
+
+  while (true) {
+    var active = Object.keys(tally).filter(function(p) { return !eliminated[p] && tally[p] > 0; });
+    if (active.length <= 2) break;
+
+    // find lowest
+    var minParty = null, minVotes = Infinity;
+    active.forEach(function(p) {
+      if (tally[p] < minVotes) { minVotes = tally[p]; minParty = p; }
+    });
+    if (!minParty) break;
+
+    var flows = simFlows[minParty] || {};
+
+    // only distribute to candidates still standing
+    var activeFlows = {};
+    Object.keys(flows).forEach(function(t) {
+      if (!eliminated[t] && t !== minParty && tally[t] !== undefined) activeFlows[t] = flows[t];
+    });
+    var activeTotal = Object.keys(activeFlows).reduce(function(s, k) { return s + activeFlows[k]; }, 0);
+
+    var distributed = 0;
+    if (activeTotal > 0) {
+      Object.keys(activeFlows).forEach(function(t) {
+        var transfer = Math.round(minVotes * activeFlows[t] / activeTotal);
+        tally[t] += transfer;
+        distributed += transfer;
+      });
+    }
+
+    roundLog.push({ eliminated: minParty, votes: minVotes });
+    eliminated[minParty] = true;
+    tally[minParty] = 0;
+  }
+
+  // final two
+  var remaining = Object.keys(tally)
+    .filter(function(p) { return !eliminated[p] && tally[p] > 0; })
+    .sort(function(a, b) { return tally[b] - tally[a]; });
+
+  if (remaining.length < 2) return;
+
+  var total = tally[remaining[0]] + tally[remaining[1]];
+  var p1 = tally[remaining[0]] / total * 100;
+  var p2 = tally[remaining[1]] / total * 100;
+  var c1 = candidates.find(function(c) { return c.partyId === remaining[0]; });
+  var c2 = candidates.find(function(c) { return c.partyId === remaining[1]; });
+  var margin = tally[remaining[0]] - tally[remaining[1]];
+
+  var greensIn = remaining[0] === 'GRN' || remaining[1] === 'GRN';
+  var verdict;
+  if (greensIn) {
+    if (remaining[0] === 'GRN') {
+      verdict = '<span class="greens-highlight">Greens WIN by ' + margin.toLocaleString() + ' votes</span>';
+    } else {
+      verdict = 'Greens in final two &mdash; ' + margin.toLocaleString() + ' votes short';
+    }
+  } else {
+    verdict = c1.partyId + ' wins by ' + margin.toLocaleString() + ' votes &mdash; Greens eliminated before final two';
+  }
+
+  var elimPath = roundLog.map(function(r, i) {
+    return '<span style="color:#777;font-size:0.78rem">R' + (i+1) + ': <span style="color:' + pc(r.eliminated) + '">' + r.eliminated + '</span> (' + r.votes.toLocaleString() + ')</span>';
+  }).join(' &rarr; ');
+
+  document.getElementById('simResult').innerHTML =
+    '<div class="elim-path">' + elimPath + '</div>' +
+    '<div class="sim-result-bar">' +
+      '<div class="seg" style="width:' + p1 + '%;background:' + pc(remaining[0]) + '">' + p1.toFixed(1) + '%</div>' +
+      '<div class="seg" style="width:' + p2 + '%;background:' + pc(remaining[1]) + '">' + p2.toFixed(1) + '%</div>' +
+    '</div>' +
+    '<div class="sim-result-labels">' +
+      '<div><strong>' + c1.candidateName + '</strong> <span style="color:#777">' + tally[remaining[0]].toLocaleString() + '</span></div>' +
+      '<div style="text-align:right"><strong>' + c2.candidateName + '</strong> <span style="color:#777">' + tally[remaining[1]].toLocaleString() + '</span></div>' +
+    '</div>' +
+    '<div class="sim-result-verdict">' + verdict + '</div>';
+
+  // update round headers with actual accumulated counts
+  roundLog.forEach(function(r) {
+    var el = document.getElementById('rv-' + r.eliminated);
+    if (el) el.textContent = r.votes.toLocaleString() + ' votes';
+  });
+}
+
+init();
+</script>
+</body>
+</html>
