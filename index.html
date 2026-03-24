@@ -170,6 +170,7 @@ tr:last-child td { border-bottom: none; }
 .sim-section .section-title { color: var(--greens); }
 .sim-intro { font-size: 0.85rem; color: #777; margin-bottom: 16px; line-height: 1.5; }
 
+.sim-round-major { border: 2px solid #c0d1c7; background: #edf2ef; }
 .sim-round {
   background: #f5f7f6; border: 1px solid #dce5df;
   border-radius: 8px; padding: 14px; margin-bottom: 10px;
@@ -322,6 +323,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="sim-preset-row">
       <button class="sim-preset active" onclick="applyPreset('even')">Even Split</button>
+      <button class="sim-preset" onclick="applyPreset('historical')">2022 Actual</button>
       <span style="color:#777;font-size:0.75rem;padding:4px 2px">GRN win scenarios:</span>
       <button class="sim-preset" onclick="applyScenario(0)" id="sc0">Progressive</button>
       <button class="sim-preset" onclick="applyScenario(1)" id="sc1">Hills community</button>
@@ -661,10 +663,25 @@ function getEvenFlows() {
   return flows;
 }
 
-// Each of these actually produces a Greens win when run through the sim.
-// The key: Greens trail ALP by 282 first-pref votes. ONP (2960 votes) is
+// 2022 Heysen actual preference flows from ECSA distribution of preferences.
+// FFP/ONP/GRN flows are real data. FGA/AFP/AJP/IND estimated from
+// Kavel 2022 and similar Hills electorates where those parties ran.
+var HISTORICAL_2022 = {
+  FGA: { ONP: 35, LIB: 25, ALP: 15, GRN: 10, FFP: 8, AFP: 4, IND: 3 },
+  AFP: { LIB: 35, ONP: 25, FFP: 15, ALP: 10, GRN: 8, IND: 5, FGA: 2 },
+  FFP: { ONP: 45, LIB: 25, GRN: 18, ALP: 12, IND: 0, AFP: 0, FGA: 0 },
+  AJP: { GRN: 58, ALP: 17, IND: 11, LIB: 5, ONP: 5, FFP: 2, AFP: 2 },
+  IND: { GRN: 35, ALP: 25, LIB: 20, ONP: 10, FFP: 5, AFP: 3, FGA: 2 },
+  ONP: { LIB: 41, ALP: 33, GRN: 26, FFP: 0, IND: 0, AFP: 0, FGA: 0 },
+  GRN: { ALP: 80, LIB: 20, ONP: 0, IND: 0, FFP: 0, AFP: 0, FGA: 0 },
+  ALP: { GRN: 65, LIB: 20, IND: 5, ONP: 5, FFP: 3, AFP: 1, FGA: 1 },
+  LIB: { ALP: 35, ONP: 25, GRN: 18, FFP: 10, IND: 7, AFP: 3, FGA: 2 }
+};
+
+// Greens win scenarios — these produce a GRN win when run through the sim.
+// Key: Greens trail ALP by 282 first-pref votes. ONP (2960 votes) is
 // the kingmaker — Greens need roughly 15-22% of ONP prefs to overtake ALP,
-// then win the final two on ALP prefs flowing back.
+// then win on ALP prefs flowing back.
 var WIN_SCENARIOS = [
   { name: 'Progressive groundswell',
     flows: {
@@ -717,6 +734,7 @@ function applyPreset(name) {
   var btn = document.querySelector('.sim-preset[onclick*="' + name + '"]');
   if (btn) btn.classList.add('active');
   if (name === 'even') simFlows = getEvenFlows();
+  if (name === 'historical') simFlows = JSON.parse(JSON.stringify(HISTORICAL_2022));
   renderSimRounds();
   runSimulation();
 }
@@ -728,6 +746,7 @@ function initSimulator() {
 }
 
 var MINOR_PARTIES = ['FGA', 'AFP', 'FFP', 'AJP', 'IND', 'ONP'];
+var lastR7eliminated = null;
 
 function renderSimRounds() {
   var sorted = candidates
@@ -738,7 +757,7 @@ function renderSimRounds() {
   var eliminationOrder = sorted.filter(function(c) { return MINOR_PARTIES.indexOf(c.partyId) >= 0; });
 
   var container = document.getElementById('simRounds');
-  container.innerHTML = eliminationOrder.map(function(elim, roundIdx) {
+  var html = eliminationOrder.map(function(elim, roundIdx) {
     var flows = simFlows[elim.partyId] || {};
     var alreadyEliminated = eliminationOrder.slice(0, roundIdx).map(function(e) { return e.partyId; });
     var remaining = candidates
@@ -763,6 +782,49 @@ function renderSimRounds() {
         '<span class="sim-round-eliminated"><span id="rv-' + elim.partyId + '">' + elim.v.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
       '</div>' + sliders + '</div>';
   }).join('');
+
+  // Round 7: use the same elimination engine to find which major is 3rd
+  var simResult = runElimination();
+  var r7roundLog = simResult.roundLog;
+  var r7entry = r7roundLog.length > eliminationOrder.length ? r7roundLog[r7roundLog.length - 1] : null;
+  var r7eliminatedId = r7entry ? r7entry.eliminated : null;
+
+  if (!r7eliminatedId) {
+    var fallbackMajors = ['GRN', 'ALP', 'LIB']
+      .map(function(p) { return { partyId: p, votes: simResult.tally[p] || 0 }; })
+      .sort(function(a, b) { return a.votes - b.votes; });
+    r7eliminatedId = fallbackMajors[0].partyId;
+  }
+
+  var r7votes = r7entry ? r7entry.votes : 0;
+  var r7eliminated = { partyId: r7eliminatedId, votes: r7votes };
+  var r7remaining = ['GRN', 'ALP', 'LIB']
+    .filter(function(p) { return p !== r7eliminatedId; })
+    .map(function(p) { return { partyId: p }; });
+  var r7flows = simFlows[r7eliminated.partyId] || {};
+
+  var r7sliders = r7remaining
+    .sort(function(a, b) { return (r7flows[b.partyId] || 0) - (r7flows[a.partyId] || 0); })
+    .map(function(c) {
+      var val = r7flows[c.partyId] || 0;
+      return '<div class="sim-slider-row">' +
+        '<span class="sim-slider-label" style="color:' + pc(c.partyId) + '">' + c.partyId + '</span>' +
+        '<input type="range" class="sim-slider" min="0" max="100" value="' + val + '"' +
+        ' style="--thumb-color:' + pc(c.partyId) + '"' +
+        ' data-elim="' + r7eliminated.partyId + '" data-target="' + c.partyId + '"' +
+        ' oninput="updateFlow(this)">' +
+        '<span class="sim-slider-value" id="sv-' + r7eliminated.partyId + '-' + c.partyId + '">' + val + '%</span>' +
+      '</div>';
+    }).join('');
+
+  html += '<div class="sim-round sim-round-major" id="simRound7">' +
+    '<div class="sim-round-header">' +
+      '<span class="sim-round-title">Round 7: Eliminate <span style="color:' + pc(r7eliminated.partyId) + '">' + r7eliminated.partyId + '</span></span>' +
+      '<span class="sim-round-eliminated"><span id="rv-' + r7eliminated.partyId + '">' + r7eliminated.votes.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
+    '</div>' + r7sliders + '</div>';
+  lastR7eliminated = r7eliminatedId;
+
+  container.innerHTML = html;
 }
 
 function updateFlow(slider) {
@@ -802,8 +864,8 @@ function updateFlow(slider) {
   runSimulation();
 }
 
-function runSimulation() {
-  // preferential count: eliminate lowest, distribute, repeat until 2 remain
+// shared elimination logic used by both renderSimRounds and result display
+function runElimination() {
   var tally = {};
   candidates.forEach(function(c) { tally[c.partyId] = candidateVotes[c.candidateId].votes; });
 
@@ -814,7 +876,6 @@ function runSimulation() {
     var active = Object.keys(tally).filter(function(p) { return !eliminated[p] && tally[p] > 0; });
     if (active.length <= 2) break;
 
-    // find lowest
     var minParty = null, minVotes = Infinity;
     active.forEach(function(p) {
       if (tally[p] < minVotes) { minVotes = tally[p]; minParty = p; }
@@ -822,20 +883,15 @@ function runSimulation() {
     if (!minParty) break;
 
     var flows = simFlows[minParty] || {};
-
-    // only distribute to candidates still standing
     var activeFlows = {};
     Object.keys(flows).forEach(function(t) {
       if (!eliminated[t] && t !== minParty && tally[t] !== undefined) activeFlows[t] = flows[t];
     });
     var activeTotal = Object.keys(activeFlows).reduce(function(s, k) { return s + activeFlows[k]; }, 0);
 
-    var distributed = 0;
     if (activeTotal > 0) {
       Object.keys(activeFlows).forEach(function(t) {
-        var transfer = Math.round(minVotes * activeFlows[t] / activeTotal);
-        tally[t] += transfer;
-        distributed += transfer;
+        tally[t] += Math.round(minVotes * activeFlows[t] / activeTotal);
       });
     }
 
@@ -843,6 +899,15 @@ function runSimulation() {
     eliminated[minParty] = true;
     tally[minParty] = 0;
   }
+
+  return { tally: tally, eliminated: eliminated, roundLog: roundLog };
+}
+
+function runSimulation() {
+  var result = runElimination();
+  var tally = result.tally;
+  var eliminated = result.eliminated;
+  var roundLog = result.roundLog;
 
   // final two
   var remaining = Object.keys(tally)
@@ -891,6 +956,37 @@ function runSimulation() {
     var el = document.getElementById('rv-' + r.eliminated);
     if (el) el.textContent = r.votes.toLocaleString() + ' votes';
   });
+
+  // if R7 eliminated party changed, rebuild just that panel
+  var r7entry = roundLog.length >= 7 ? roundLog[roundLog.length - 1] : null;
+  var r7now = r7entry ? r7entry.eliminated : null;
+  if (r7now && r7now !== lastR7eliminated) {
+    lastR7eliminated = r7now;
+    var r7panel = document.getElementById('simRound7');
+    if (r7panel) {
+      var MAJORS = ['GRN', 'ALP', 'LIB'];
+      var r7others = MAJORS.filter(function(p) { return p !== r7now; });
+      var r7flows = simFlows[r7now] || {};
+      var r7sliders = r7others
+        .sort(function(a, b) { return (r7flows[b] || 0) - (r7flows[a] || 0); })
+        .map(function(t) {
+          var val = r7flows[t] || 0;
+          return '<div class="sim-slider-row">' +
+            '<span class="sim-slider-label" style="color:' + pc(t) + '">' + t + '</span>' +
+            '<input type="range" class="sim-slider" min="0" max="100" value="' + val + '"' +
+            ' style="--thumb-color:' + pc(t) + '"' +
+            ' data-elim="' + r7now + '" data-target="' + t + '"' +
+            ' oninput="updateFlow(this)">' +
+            '<span class="sim-slider-value" id="sv-' + r7now + '-' + t + '">' + val + '%</span>' +
+          '</div>';
+        }).join('');
+      r7panel.innerHTML =
+        '<div class="sim-round-header">' +
+          '<span class="sim-round-title">Round 7: Eliminate <span style="color:' + pc(r7now) + '">' + r7now + '</span></span>' +
+          '<span class="sim-round-eliminated"><span id="rv-' + r7now + '">' + r7entry.votes.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
+        '</div>' + r7sliders;
+    }
+  }
 }
 
 init();
