@@ -412,23 +412,24 @@ tr:last-child td { border-bottom: none; }
 
 <div class="modal-overlay" id="helpModal">
   <div class="modal">
-    <h2>Heysen Results &amp; Preference Simulator</h2>
-    <p>Live first preference results for Heysen with an interactive preference flow simulator. Data updates automatically from the ECSA media feed.</p>
+    <h2>Heysen preference simulator</h2>
+    <p>Live results from the ECSA feed, plus a preference flow simulator you can play with.</p>
 
-    <h3>Simulator</h3>
-    <p>Drag sliders or type values to model how preferences flow between candidates. Type a number for votes (e.g. <code>500</code>) or add <code>%</code> for a percentage. Totals don't need to be exact — the sim normalises proportionally.</p>
+    <h3>How it works</h3>
+    <p>Candidates get eliminated from the bottom and their votes get redistributed. Use the sliders to set where you think those preferences go — or just pick a preset and tweak from there.</p>
+    <p>You can type vote numbers directly (e.g. <code>500</code>) or percentages (<code>25%</code>). Don't stress about getting totals to exactly 100%, it'll sort itself out.</p>
 
     <h3>Presets</h3>
     <ul>
-      <li><strong>2022 Actual</strong> — real preference flows from the 2022 Heysen count</li>
-      <li><strong>2022 Postal Lean</strong> — adjusted for how postal/declaration voters skewed in 2022 (LIB +3.7%, GRN -2.6%)</li>
-      <li><strong>Win scenarios</strong> — illustrative paths to a Greens win</li>
+      <li><strong>2022 Actual</strong> — how preferences actually flowed in Heysen last time</li>
+      <li><strong>2022 Postal Lean</strong> — same but shifted for how postal voters behaved differently (more LIB, less GRN)</li>
+      <li><strong>Win scenarios</strong> — what-if scenarios where Greens get up</li>
     </ul>
 
-    <p>The sticky bar at the bottom shows your sim prediction alongside the actual 3CP/2CP count from scrutineers, updated as postal votes come in.</p>
+    <p>The bar at the bottom compares your sim against the actual count from scrutineers. It updates as postals come in.</p>
 
     <div class="disclaimer">
-      <p><strong>Heads up:</strong> This is a fun tool for exploring "what if" scenarios — not a crystal ball. The preference flows are estimates based on 2022 data and may not match what actually happens in 2026. Not affiliated with ECSA.</p>
+      <p>Just a heads up — this is for playing around with, not an actual prediction. The preference numbers are based on 2022 and might not reflect 2026. Not affiliated with ECSA.</p>
     </div>
 
     <button class="modal-close" onclick="hideHelp()">Got it</button>
