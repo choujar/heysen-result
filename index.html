@@ -210,9 +210,20 @@ tr:last-child td { border-bottom: none; }
 .sim-slider:active::-webkit-slider-thumb { transform: scale(1.15); }
 
 .sim-slider-value {
-  width: 42px; text-align: right; font-size: 0.78rem;
+  width: 58px; text-align: right; font-size: 0.78rem;
   font-variant-numeric: tabular-nums; color: #777;
+  border: 1px solid transparent; border-radius: 4px;
+  padding: 2px 4px; background: transparent;
+  outline: none; font-family: inherit;
 }
+.sim-slider-value:hover { border-color: #ccc; background: #f8f8f8; }
+.sim-slider-value:focus { border-color: var(--greens); background: #fff; color: #333; }
+.sim-slider-total {
+  font-size: 0.72rem; margin-left: auto; color: #999;
+  font-variant-numeric: tabular-nums;
+}
+.sim-slider-total.over { color: #c33; }
+.sim-slider-total.ok { color: var(--greens); }
 
 .sim-result {
   position: sticky; bottom: 0; z-index: 10;
@@ -232,7 +243,62 @@ tr:last-child td { border-bottom: none; }
 }
 .sim-result-labels { display: flex; justify-content: space-between; font-size: 0.85rem; }
 .sim-result-verdict { text-align: center; margin-top: 6px; font-size: 1rem; font-weight: 700; }
+.sim-result-live { border-top: 2px solid #dce5df; margin-top: 12px; padding-top: 12px; }
+.sim-result-live-header { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.sim-result-live-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #555; font-weight: 700; }
+.sim-result-live-bar { height: 26px; border-radius: 5px; overflow: hidden; display: flex; margin-bottom: 4px; }
+.sim-result-live-bar .seg {
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.78rem; color: #fff; transition: width 0.3s ease;
+}
+.sim-result-live-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 2px; }
+.sim-result-live-label { font-size: 0.72rem; color: #999; margin-right: 8px; font-weight: 600; }
+.sim-result-live-val { font-weight: 700; font-size: 0.88rem; }
+.info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; background: #dce5df;
+  font-size: 0.65rem; font-weight: 700; color: #666; cursor: help;
+  position: relative; margin-left: 4px; vertical-align: middle;
+}
+.info-icon:hover .info-tooltip { display: block; }
+.info-tooltip {
+  display: none; position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: #333; color: #fff; padding: 8px 12px; border-radius: 6px;
+  font-size: 0.72rem; font-weight: 400; line-height: 1.4; width: 240px;
+  text-align: left; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.info-tooltip::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: #333;
+}
 .sim-result .elim-path { font-size: 0.72rem; color: #777; margin-bottom: 6px; line-height: 1.6; }
+
+.help-btn {
+  background: none; border: 1px solid #ccc; border-radius: 50%; width: 24px; height: 24px;
+  font-size: 0.75rem; font-weight: 700; color: #888; cursor: pointer; display: inline-flex;
+  align-items: center; justify-content: center; margin-left: 8px; vertical-align: middle;
+}
+.help-btn:hover { border-color: var(--greens); color: var(--greens); }
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+  z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: #fff; border-radius: 14px; max-width: 520px; width: 100%;
+  max-height: 80vh; overflow-y: auto; padding: 28px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.modal h2 { margin: 0 0 12px; font-size: 1.2rem; color: var(--greens); }
+.modal h3 { margin: 16px 0 6px; font-size: 0.9rem; color: #333; }
+.modal p { font-size: 0.82rem; color: #555; line-height: 1.5; margin: 0 0 8px; }
+.modal ul { font-size: 0.82rem; color: #555; line-height: 1.6; margin: 0 0 8px; padding-left: 18px; }
+.modal .disclaimer { background: #f5f7f6; border-radius: 8px; padding: 12px; margin-top: 12px; border: 1px solid #e0e5e2; }
+.modal .disclaimer p { font-size: 0.75rem; color: #888; margin: 0; }
+.modal-close {
+  display: block; margin: 16px auto 0; background: var(--greens); color: #fff; border: none;
+  padding: 10px 32px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+}
+.modal-close:hover { background: #006630; }
 
 .sim-preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 .sim-preset {
@@ -277,7 +343,7 @@ tr:last-child td { border-bottom: none; }
 <div class="container">
 
   <div class="header">
-    <h1><strong>Heysen</strong>SA State Election 2026</h1>
+    <h1><strong>Heysen</strong>SA State Election 2026 <button class="help-btn" onclick="showHelp()" title="How to use this tool">?</button></h1>
     <div class="header-right">
       <div class="updated" id="lastUpdated">--</div>
       <span class="status-badge" id="electionStatus">--</span>
@@ -322,13 +388,16 @@ tr:last-child td { border-bottom: none; }
       Candidates are eliminated from the bottom &mdash; see how flows change the final result.
     </div>
     <div class="sim-preset-row">
-      <button class="sim-preset active" onclick="applyPreset('even')">Even Split</button>
-      <button class="sim-preset" onclick="applyPreset('historical')">2022 Actual</button>
+      <button class="sim-preset active" onclick="applyPreset('historical')">2022 Actual</button>
+      <button class="sim-preset" onclick="applyPreset('postal')">2022 Postal Lean</button>
+      <button class="sim-preset" id="liveCountBtn" style="display:none;opacity:0.4;cursor:not-allowed" disabled title="Not enough scrutineer preference data yet — need actual flow percentages, not just HTV directions">Live Count</button>
       <span style="color:#777;font-size:0.75rem;padding:4px 2px">GRN win scenarios:</span>
       <button class="sim-preset" onclick="applyScenario(0)" id="sc0">Progressive</button>
       <button class="sim-preset" onclick="applyScenario(1)" id="sc1">Hills community</button>
       <button class="sim-preset" onclick="applyScenario(2)" id="sc2">Anti-establishment</button>
     </div>
+    <div id="sheetStatus" style="font-size:0.72rem;color:#999;margin-bottom:8px;display:none"></div>
+    <div id="liveCountPanel" style="display:none"></div>
     <div id="simRounds"></div>
     <div class="sim-result" id="simResult"></div>
   </div>
@@ -341,6 +410,40 @@ tr:last-child td { border-bottom: none; }
 </div>
 </div>
 
+<div class="modal-overlay" id="helpModal">
+  <div class="modal">
+    <h2>Heysen Results &amp; Preference Simulator</h2>
+    <p>This tool shows live first preference results for the District of Heysen and lets you model how preference flows could affect the final result.</p>
+
+    <h3>Live Results</h3>
+    <p>First preference votes, booth-by-booth breakdowns, and count progress update automatically from the ECSA media feed. The green hero section shows the Greens primary vote with swing from 2022.</p>
+
+    <h3>Preference Simulator</h3>
+    <p>SA uses full preferential voting — candidates are eliminated from the bottom and their votes redistributed. The simulator lets you adjust how each eliminated party's votes flow to remaining candidates.</p>
+    <ul>
+      <li><strong>Drag sliders</strong> to set percentage flows, or <strong>type values</strong> in the input boxes</li>
+      <li>Type a number (e.g. <code>500</code>) for votes, or add <code>%</code> (e.g. <code>25%</code>) for a percentage</li>
+      <li>Flows don't need to total exactly 100% — the simulator normalises proportionally</li>
+    </ul>
+
+    <h3>Presets</h3>
+    <ul>
+      <li><strong>2022 Actual</strong> — preference flows from the 2022 Heysen count (ECSA distribution of preferences)</li>
+      <li><strong>2022 Postal Lean</strong> — adjusts flows based on how declaration voters (postal, absent, provisional) voted differently to election-day voters in 2022. Declaration votes skewed LIB +3.7%, GRN -2.6%</li>
+      <li><strong>Win scenarios</strong> — illustrative scenarios showing paths to a Greens win</li>
+    </ul>
+
+    <h3>Actual Count</h3>
+    <p>The sticky bar shows the simulator's prediction alongside the actual 3CP and 2CP count from Greens scrutineers and the ECSA media feed. This updates as postal and declaration votes are counted.</p>
+
+    <div class="disclaimer">
+      <p><strong>Heads up:</strong> This is a fun tool for exploring "what if" scenarios — not a crystal ball. The preference flows are estimates based on 2022 data and may not match what actually happens in 2026. Not affiliated with ECSA.</p>
+    </div>
+
+    <button class="modal-close" onclick="hideHelp()">Got it</button>
+  </div>
+</div>
+
 <script>
 var API = '/api';
 var ELECTION_DATE = '2026-03-21';
@@ -349,6 +452,19 @@ var DISTRICT = 'Heysen';
 // ABC notional 2022 on 2026 boundaries — raw 2022 was 20.7% but redistribution
 // shifted some booths between electorates so the comparable figure is 19.7%
 var GREENS_2022_PCT = 19.7;
+
+function showHelp() { document.getElementById('helpModal').classList.remove('hidden'); }
+function hideHelp() {
+  document.getElementById('helpModal').classList.add('hidden');
+  localStorage.setItem('heysen_help_seen', '1');
+}
+if (!localStorage.getItem('heysen_help_seen')) {
+  // show on first visit — slight delay so page renders first
+  setTimeout(function() { showHelp(); }, 500);
+}
+document.getElementById('helpModal').addEventListener('click', function(e) {
+  if (e.target === this) hideHelp();
+});
 
 var staticData = null, changeData = null, dataVersion = 0;
 var autoRefreshTimer, countdownTimer, secondsLeft = 60;
@@ -393,6 +509,8 @@ async function init() {
     render();
     initSimulator();
     startAutoRefresh();
+    fetchSheetData();
+    setInterval(fetchSheetData, 60000);
   } catch (e) {
     document.getElementById('loading').style.display = 'none';
     var err = document.getElementById('error');
@@ -505,15 +623,18 @@ function render() {
   var swing = greensPct - GREENS_2022_PCT;
 
   var alp = candidates.find(function(c) { return c.partyId === 'ALP'; });
-  var alpPct = candidateVotes[alp.candidateId].votes / totalFormal * 100;
+  var alpVotes = candidateVotes[alp.candidateId].votes;
+  var alpPct = alpVotes / totalFormal * 100;
   var gapToALP = alpPct - greensPct;
+  var voteGap = Math.abs(greensVotes - alpVotes);
+  var aheadOrBehind = greensVotes >= alpVotes ? 'ahead of' : 'behind';
 
   document.getElementById('hero').innerHTML =
     '<div class="hero-label">Greens First Preference</div>' +
     '<div class="hero-pct">' + greensPct.toFixed(1) + '%</div>' +
     '<div class="hero-sub">' + greensVotes.toLocaleString() + ' votes &mdash; ' + greens.candidateName + '</div>' +
     '<div class="hero-swing">+' + swing.toFixed(1) + '% swing from 2022</div>' +
-    '<div class="hero-context">Just ' + gapToALP.toFixed(1) + '% behind ALP for second place. 2022 notional: ' + GREENS_2022_PCT + '%</div>';
+    '<div class="hero-context">' + Math.abs(gapToALP).toFixed(1) + '% ' + aheadOrBehind + ' ALP (' + voteGap.toLocaleString() + ' votes). 2022 notional: ' + GREENS_2022_PCT + '%</div>';
 
   renderTCP();
   renderFirstPrefs();
@@ -678,6 +799,25 @@ var HISTORICAL_2022 = {
   LIB: { ALP: 35, ONP: 25, GRN: 18, FFP: 10, IND: 7, AFP: 3, FGA: 2 }
 };
 
+// 2022 postal/declaration lean from ECSA data.
+// Declaration voters (postal+absent+provisional) vs ordinary (election day):
+//   LIB 45.8% vs 42.1% (+3.7%), GRN 19.0% vs 21.6% (-2.6%),
+//   ALP 26.4% vs 27.1% (-0.7%), ONP 4.6% vs 5.0% (-0.4%), FFP 4.2% vs 4.2% (=)
+// These multipliers shift preference flow targets to model postal-leaning behaviour.
+var POSTAL_LEAN = { LIB: 1.088, GRN: 0.880, ALP: 0.974, ONP: 0.920, FFP: 1.0, IND: 0.95, AJP: 0.85, AFP: 1.05, FGA: 1.0 };
+
+function getPostalLeanFlows() {
+  var base = JSON.parse(JSON.stringify(HISTORICAL_2022));
+  var parties = Object.keys(base);
+  parties.forEach(function(from) {
+    var targets = Object.keys(base[from]);
+    targets.forEach(function(to) {
+      base[from][to] = Math.round(base[from][to] * (POSTAL_LEAN[to] || 1));
+    });
+  });
+  return normaliseFlows(base);
+}
+
 // Greens win scenarios — these produce a GRN win when run through the sim.
 // Key: Greens trail ALP by 282 first-pref votes. ONP (2960 votes) is
 // the kingmaker — Greens need roughly 15-22% of ONP prefs to overtake ALP,
@@ -721,26 +861,76 @@ var WIN_SCENARIOS = [
     }}
 ];
 
+function normaliseFlows(flows) {
+  var parties = ['GRN', 'ALP', 'LIB', 'ONP', 'FFP', 'IND', 'AJP', 'AFP', 'FGA'];
+  parties.forEach(function(ep) {
+    if (!flows[ep]) flows[ep] = {};
+    var remaining = parties.filter(function(p) { return p !== ep; });
+    remaining.forEach(function(p) {
+      if (flows[ep][p] === undefined) flows[ep][p] = 0;
+    });
+    var total = remaining.reduce(function(s, p) { return s + flows[ep][p]; }, 0);
+    if (total > 0 && total !== 100) {
+      var assigned = 0;
+      remaining.forEach(function(p, i) {
+        if (i === remaining.length - 1) {
+          flows[ep][p] = 100 - assigned;
+        } else {
+          flows[ep][p] = Math.round(flows[ep][p] / total * 100);
+          assigned += flows[ep][p];
+        }
+      });
+    }
+  });
+  return flows;
+}
+
 function applyScenario(idx) {
-  simFlows = JSON.parse(JSON.stringify(WIN_SCENARIOS[idx].flows));
+  simFlows = normaliseFlows(JSON.parse(JSON.stringify(WIN_SCENARIOS[idx].flows)));
   document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('sc' + idx).classList.add('active');
+  activePresetName = WIN_SCENARIOS[idx].name;
   renderSimRounds();
   runSimulation();
+}
+
+// ---- Live Count sheet integration ----
+var liveSheetData = null;
+var activePresetName = '2022 Actual';
+
+function fetchSheetData() {
+  fetch('/api/sheet')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) {
+        console.warn('Sheet fetch error:', data.error);
+        return;
+      }
+      liveSheetData = data;
+
+      // show the disabled Live Count button
+      var btn = document.getElementById('liveCountBtn');
+      if (btn) btn.style.display = '';
+
+      // re-render sim result to include live data in sticky bar
+      runSimulation();
+    })
+    .catch(function(e) { console.warn('Sheet fetch failed:', e); });
 }
 
 function applyPreset(name) {
   document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
   var btn = document.querySelector('.sim-preset[onclick*="' + name + '"]');
   if (btn) btn.classList.add('active');
-  if (name === 'even') simFlows = getEvenFlows();
-  if (name === 'historical') simFlows = JSON.parse(JSON.stringify(HISTORICAL_2022));
+  if (name === 'historical') simFlows = normaliseFlows(JSON.parse(JSON.stringify(HISTORICAL_2022)));
+  if (name === 'postal') simFlows = getPostalLeanFlows();
+  activePresetName = (name === 'historical') ? '2022 Actual' : (name === 'postal') ? '2022 Postal Lean' : name;
   renderSimRounds();
   runSimulation();
 }
 
 function initSimulator() {
-  simFlows = getEvenFlows();
+  simFlows = normaliseFlows(JSON.parse(JSON.stringify(HISTORICAL_2022)));
   renderSimRounds();
   runSimulation();
 }
@@ -766,20 +956,23 @@ function renderSimRounds() {
 
     var sliders = remaining.map(function(c) {
       var val = flows[c.partyId] || 0;
+      var votes = Math.round(elim.v * val / 100);
       return '<div class="sim-slider-row">' +
         '<span class="sim-slider-label" style="color:' + pc(c.partyId) + '">' + c.partyId + '</span>' +
         '<input type="range" class="sim-slider" min="0" max="100" value="' + val + '"' +
         ' style="--thumb-color:' + pc(c.partyId) + '"' +
         ' data-elim="' + elim.partyId + '" data-target="' + c.partyId + '"' +
         ' oninput="updateFlow(this)">' +
-        '<span class="sim-slider-value" id="sv-' + elim.partyId + '-' + c.partyId + '">' + val + '%</span>' +
+        '<input class="sim-slider-value" id="sv-' + elim.partyId + '-' + c.partyId + '"' +
+        ' data-elim="' + elim.partyId + '" data-target="' + c.partyId + '" data-total="' + elim.v + '"' +
+        ' value="' + val + '%" onchange="updateFlowFromInput(this)" onkeydown="if(event.key===\'Enter\'){this.blur()}">' +
       '</div>';
     }).join('');
 
     return '<div class="sim-round">' +
       '<div class="sim-round-header">' +
         '<span class="sim-round-title">Round ' + (roundIdx + 1) + ': Eliminate <span style="color:' + pc(elim.partyId) + '">' + elim.partyId + '</span></span>' +
-        '<span class="sim-round-eliminated"><span id="rv-' + elim.partyId + '">' + elim.v.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
+        '<span class="sim-round-eliminated"><span id="rv-' + elim.partyId + '">' + elim.v.toLocaleString() + ' votes</span> <span class="sim-slider-total" id="st-' + elim.partyId + '"></span></span>' +
       '</div>' + sliders + '</div>';
   }).join('');
 
@@ -801,7 +994,32 @@ function renderSimRounds() {
   var r7remaining = ['GRN', 'ALP', 'LIB']
     .filter(function(p) { return p !== r7eliminatedId; })
     .map(function(p) { return { partyId: p }; });
-  var r7flows = simFlows[r7eliminated.partyId] || {};
+  // ensure R7 flows exist and total 100% for the two remaining parties
+  var r7keys = r7remaining.map(function(c) { return c.partyId; });
+  if (!simFlows[r7eliminated.partyId] || r7keys.reduce(function(s, k) { return s + (simFlows[r7eliminated.partyId][k] || 0); }, 0) === 0) {
+    // no manual adjustments — seed from 2022 historical data
+    var hist = HISTORICAL_2022[r7eliminated.partyId] || {};
+    if (!simFlows[r7eliminated.partyId]) simFlows[r7eliminated.partyId] = {};
+    r7keys.forEach(function(k) { simFlows[r7eliminated.partyId][k] = hist[k] || 0; });
+  }
+  // normalise to 100% across just the two remaining parties
+  var r7flows = simFlows[r7eliminated.partyId];
+  var r7total = r7keys.reduce(function(s, k) { return s + (r7flows[k] || 0); }, 0);
+  if (r7total > 0 && r7total !== 100) {
+    var assigned = 0;
+    r7keys.forEach(function(k, i) {
+      if (i === r7keys.length - 1) {
+        r7flows[k] = 100 - assigned;
+      } else {
+        r7flows[k] = Math.round(r7flows[k] / r7total * 100);
+        assigned += r7flows[k];
+      }
+    });
+  } else if (r7total === 0) {
+    r7keys.forEach(function(k, i) {
+      r7flows[k] = (i === r7keys.length - 1) ? 100 - 50 * (r7keys.length - 1) : 50;
+    });
+  }
 
   var r7sliders = r7remaining
     .sort(function(a, b) { return (r7flows[b.partyId] || 0) - (r7flows[a.partyId] || 0); })
@@ -813,55 +1031,98 @@ function renderSimRounds() {
         ' style="--thumb-color:' + pc(c.partyId) + '"' +
         ' data-elim="' + r7eliminated.partyId + '" data-target="' + c.partyId + '"' +
         ' oninput="updateFlow(this)">' +
-        '<span class="sim-slider-value" id="sv-' + r7eliminated.partyId + '-' + c.partyId + '">' + val + '%</span>' +
+        '<input class="sim-slider-value" id="sv-' + r7eliminated.partyId + '-' + c.partyId + '"' +
+        ' data-elim="' + r7eliminated.partyId + '" data-target="' + c.partyId + '" data-total="' + r7votes + '"' +
+        ' value="' + val + '%" onchange="updateFlowFromInput(this)" onkeydown="if(event.key===\'Enter\'){this.blur()}">' +
       '</div>';
     }).join('');
 
   html += '<div class="sim-round sim-round-major" id="simRound7">' +
     '<div class="sim-round-header">' +
       '<span class="sim-round-title">Round 7: Eliminate <span style="color:' + pc(r7eliminated.partyId) + '">' + r7eliminated.partyId + '</span></span>' +
-      '<span class="sim-round-eliminated"><span id="rv-' + r7eliminated.partyId + '">' + r7eliminated.votes.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
+      '<span class="sim-round-eliminated"><span id="rv-' + r7eliminated.partyId + '">' + r7eliminated.votes.toLocaleString() + ' votes</span> <span class="sim-slider-total" id="st-' + r7eliminated.partyId + '"></span></span>' +
     '</div>' + r7sliders + '</div>';
   lastR7eliminated = r7eliminatedId;
 
   container.innerHTML = html;
+
+  // update all round totals
+  Object.keys(simFlows).forEach(function(elim) { updateRoundTotal(elim); });
 }
 
 function updateFlow(slider) {
   var elim = slider.dataset.elim;
   var target = slider.dataset.target;
   var val = parseInt(slider.value);
+  if (val < 0) val = 0;
+  if (val > 100) val = 100;
 
   if (!simFlows[elim]) simFlows[elim] = {};
+  // ensure all sibling sliders are in the flows object
+  document.querySelectorAll('input.sim-slider[data-elim="' + elim + '"]').forEach(function(s) {
+    if (simFlows[elim][s.dataset.target] === undefined) simFlows[elim][s.dataset.target] = parseInt(s.value) || 0;
+  });
   simFlows[elim][target] = val;
 
-  // normalise: keep total at 100 by scaling other sliders proportionally
-  var flows = simFlows[elim];
-  var others = Object.keys(flows).filter(function(k) { return k !== target; });
-  var othersTotal = others.reduce(function(s, k) { return s + (flows[k] || 0); }, 0);
-  var remaining = 100 - val;
+  // just update the text input to match — no normalisation
+  var label = document.getElementById('sv-' + elim + '-' + target);
+  if (label) label.value = val + '%';
 
-  if (othersTotal > 0) {
-    others.forEach(function(k) {
-      flows[k] = Math.round(flows[k] / othersTotal * remaining);
-    });
-    var newTotal = Object.keys(flows).reduce(function(s, k) { return s + flows[k]; }, 0);
-    if (newTotal !== 100 && others.length > 0) flows[others[0]] += 100 - newTotal;
-  } else if (others.length > 0) {
-    var each = Math.floor(remaining / others.length);
-    others.forEach(function(k) { flows[k] = each; });
-    flows[others[0]] += remaining - each * others.length;
+  updateRoundTotal(elim);
+  document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
+  activePresetName = 'Custom';
+  runSimulation();
+}
+
+function updateRoundTotal(elim) {
+  var flows = simFlows[elim] || {};
+  // only sum parties that have visible sliders in this round
+  var visibleTargets = [];
+  document.querySelectorAll('input.sim-slider[data-elim="' + elim + '"]').forEach(function(s) {
+    visibleTargets.push(s.dataset.target);
+  });
+  var keys = visibleTargets.length > 0 ? visibleTargets : Object.keys(flows);
+  var total = keys.reduce(function(s, k) { return s + (flows[k] || 0); }, 0);
+  var el = document.getElementById('st-' + elim);
+  if (!el) return;
+  if (total === 100) {
+    el.textContent = '= 100%';
+    el.className = 'sim-slider-total ok';
+  } else {
+    var diff = 100 - total;
+    el.textContent = '= ' + total + '% (' + (diff > 0 ? diff + '% unallocated' : Math.abs(diff) + '% over') + ')';
+    el.className = 'sim-slider-total' + (total > 100 ? ' over' : '');
+  }
+}
+
+function updateFlowFromInput(input) {
+  var elim = input.dataset.elim;
+  var target = input.dataset.target;
+  var raw = input.value.trim();
+  var totalVotes = parseInt(input.dataset.total) || 0;
+  var pct;
+
+  if (raw.endsWith('%')) {
+    pct = parseFloat(raw.replace('%', ''));
+  } else {
+    var votes = parseFloat(raw);
+    if (totalVotes > 0 && !isNaN(votes)) {
+      pct = Math.round(votes / totalVotes * 100);
+    } else {
+      pct = parseFloat(raw);
+    }
   }
 
-  Object.keys(flows).forEach(function(k) {
-    var label = document.getElementById('sv-' + elim + '-' + k);
-    if (label) label.textContent = flows[k] + '%';
-    var sl = document.querySelector('input[data-elim="' + elim + '"][data-target="' + k + '"]');
-    if (sl) sl.value = flows[k];
-  });
+  if (isNaN(pct)) pct = 0;
+  if (pct < 0) pct = 0;
+  if (pct > 100) pct = 100;
 
-  document.querySelectorAll('.sim-preset').forEach(function(b) { b.classList.remove('active'); });
-  runSimulation();
+  // update the range slider and rerun sim
+  var sl = document.querySelector('input.sim-slider[data-elim="' + elim + '"][data-target="' + target + '"]');
+  if (sl) {
+    sl.value = pct;
+    updateFlow(sl);
+  }
 }
 
 // shared elimination logic used by both renderSimRounds and result display
@@ -939,7 +1200,68 @@ function runSimulation() {
     return '<span style="color:#777;font-size:0.78rem">R' + (i+1) + ': <span style="color:' + pc(r.eliminated) + '">' + r.eliminated + '</span> (' + r.votes.toLocaleString() + ')</span>';
   }).join(' &rarr; ');
 
+  var liveHtml = '';
+  if (liveSheetData && liveSheetData.heysen) {
+    var lh = liveSheetData.heysen;
+    var hasData = lh.tcp3_grn || lh.tcp3_alp || lh.tcp3_lib || lh.tcp2_grn || lh.tcp2_lib;
+    if (hasData) {
+      var ts = lh.feedUpdated || '';
+      var tsStr = '';
+      if (ts) { try { var tsDate = new Date(ts); tsStr = ' &middot; ' + tsDate.toLocaleString('en-AU', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }); } catch(e) {} }
+
+      liveHtml = '<div class="sim-result-live">' +
+        '<div class="sim-result-live-header">' +
+          '<span class="sim-result-live-title">Actual Count</span>' +
+          '<span class="info-icon">i<span class="info-tooltip">' +
+            '3CP = three-candidate-preferred (after all minors eliminated). ' +
+            '2CP = two-candidate-preferred (final result). ' +
+            'Data from Greens scrutineers + ECSA media feed, updated as postal/declaration votes are counted.' +
+          '</span></span>' +
+          '<span style="font-size:0.64rem;color:#bbb;margin-left:auto">' + tsStr + '</span>' +
+        '</div>';
+
+      if (lh.tcp3_grn || lh.tcp3_alp || lh.tcp3_lib) {
+        var g3 = parseFloat(lh.tcp3_grn) || 0;
+        var a3 = parseFloat(lh.tcp3_alp) || 0;
+        var l3 = parseFloat(lh.tcp3_lib) || 0;
+        var swingLabel = lh.tcp3_swing ? ' (+' + lh.tcp3_swing + ')' : '';
+        liveHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+          '<span class="sim-result-live-label">3CP</span>' +
+          '<div style="flex:1">' +
+            '<div class="sim-result-live-bar">' +
+              '<div class="seg" style="width:' + g3 + '%;background:var(--greens)">' + lh.tcp3_grn + swingLabel + '</div>' +
+              '<div class="seg" style="width:' + a3 + '%;background:var(--alp)">' + lh.tcp3_alp + '</div>' +
+              '<div class="seg" style="width:' + l3 + '%;background:var(--lib)">' + lh.tcp3_lib + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      if (lh.tcp2_grn || lh.tcp2_lib) {
+        var g2 = parseFloat(lh.tcp2_grn) || 0;
+        var a2 = parseFloat(lh.tcp2_alp) || 0;
+        var l2 = parseFloat(lh.tcp2_lib) || 0;
+        liveHtml += '<div style="display:flex;align-items:center;gap:8px">' +
+          '<span class="sim-result-live-label">2CP</span>' +
+          '<div style="flex:1">' +
+            '<div class="sim-result-live-bar">' +
+              (g2 ? '<div class="seg" style="width:' + g2 + '%;background:var(--greens)">' + lh.tcp2_grn + '</div>' : '') +
+              (a2 ? '<div class="seg" style="width:' + a2 + '%;background:var(--alp)">' + lh.tcp2_alp + '</div>' : '') +
+              (l2 ? '<div class="seg" style="width:' + l2 + '%;background:var(--lib)">' + lh.tcp2_lib + '</div>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      liveHtml += '</div>';
+    }
+  }
+
   document.getElementById('simResult').innerHTML =
+    '<div class="sim-result-live-header" style="margin-bottom:6px">' +
+      '<span class="sim-result-live-title">Prediction</span>' +
+      '<span style="font-size:0.72rem;color:#aaa;font-weight:400;margin-left:4px">(' + activePresetName + ' flows)</span>' +
+    '</div>' +
     '<div class="elim-path">' + elimPath + '</div>' +
     '<div class="sim-result-bar">' +
       '<div class="seg" style="width:' + p1 + '%;background:' + pc(remaining[0]) + '">' + p1.toFixed(1) + '%</div>' +
@@ -949,7 +1271,8 @@ function runSimulation() {
       '<div><strong>' + c1.candidateName + '</strong> <span style="color:#777">' + tally[remaining[0]].toLocaleString() + '</span></div>' +
       '<div style="text-align:right"><strong>' + c2.candidateName + '</strong> <span style="color:#777">' + tally[remaining[1]].toLocaleString() + '</span></div>' +
     '</div>' +
-    '<div class="sim-result-verdict">' + verdict + '</div>';
+    '<div class="sim-result-verdict">' + verdict + '</div>' +
+    liveHtml;
 
   // update round headers with actual accumulated counts
   roundLog.forEach(function(r) {
@@ -977,13 +1300,15 @@ function runSimulation() {
             ' style="--thumb-color:' + pc(t) + '"' +
             ' data-elim="' + r7now + '" data-target="' + t + '"' +
             ' oninput="updateFlow(this)">' +
-            '<span class="sim-slider-value" id="sv-' + r7now + '-' + t + '">' + val + '%</span>' +
+            '<input class="sim-slider-value" id="sv-' + r7now + '-' + t + '"' +
+            ' data-elim="' + r7now + '" data-target="' + t + '" data-total="' + r7entry.votes + '"' +
+            ' value="' + val + '%" onchange="updateFlowFromInput(this)" onkeydown="if(event.key===\'Enter\'){this.blur()}">' +
           '</div>';
         }).join('');
       r7panel.innerHTML =
         '<div class="sim-round-header">' +
           '<span class="sim-round-title">Round 7: Eliminate <span style="color:' + pc(r7now) + '">' + r7now + '</span></span>' +
-          '<span class="sim-round-eliminated"><span id="rv-' + r7now + '">' + r7entry.votes.toLocaleString() + ' votes</span> <span style="opacity:0.6">&middot; must total 100%</span></span>' +
+          '<span class="sim-round-eliminated"><span id="rv-' + r7now + '">' + r7entry.votes.toLocaleString() + ' votes</span> <span class="sim-slider-total" id="st-' + r7now + '"></span></span>' +
         '</div>' + r7sliders;
     }
   }
