@@ -448,10 +448,10 @@ var GREENS_2022_PCT = 19.7;
 function showHelp() { document.getElementById('helpModal').classList.remove('hidden'); }
 function hideHelp() {
   document.getElementById('helpModal').classList.add('hidden');
-  localStorage.setItem('heysen_help_seen', '1');
+  localStorage.setItem('heysen_help_seen', String(Date.now()));
 }
-if (!localStorage.getItem('heysen_help_seen')) {
-  // show on first visit — slight delay so page renders first
+var lastSeen = parseInt(localStorage.getItem('heysen_help_seen') || '0');
+if (Date.now() - lastSeen > 86400000) {
   setTimeout(function() { showHelp(); }, 500);
 }
 document.getElementById('helpModal').addEventListener('click', function(e) {
