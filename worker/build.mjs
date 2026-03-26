@@ -21,7 +21,7 @@ const workerCode = `
 const PASSWORD = '${PASSWORD}';
 const COOKIE_NAME = 'heysen_auth';
 const COOKIE_MAX_AGE = 86400 * 7; // 7 days
-const API_BASE = 'https://results-display-current-prod.azurewebsites.net';
+const API_BASE = 'https://apim-ecsa-production.azure-api.net/results-display';
 const SHEET_ID = '1fOXmXo89xGFGk1EVtuRADdQuvoIPHcR-FncbTZDAMbk';
 
 function getCookie(request, name) {

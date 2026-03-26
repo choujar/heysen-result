@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 9090;
-const API_BASE = 'https://results-display-current-prod.azurewebsites.net';
+const API_BASE = 'https://apim-ecsa-production.azure-api.net/results-display';
 const SHEET_ID = '1fOXmXo89xGFGk1EVtuRADdQuvoIPHcR-FncbTZDAMbk';
 
 // Load Google credentials for sheet proxy
