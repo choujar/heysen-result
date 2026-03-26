@@ -104,7 +104,17 @@ body {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 16px; margin-bottom: 16px;
 }
-@media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 700px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .header { flex-wrap: nowrap; gap: 8px; }
+  .header h1 { font-size: 0.95rem; }
+  .header h1 strong { font-size: 1.15rem; }
+  .header-right { font-size: 0.7rem; }
+  .header-right .updated { white-space: nowrap; }
+  .controls { gap: 4px; margin-top: 4px; }
+  .btn { padding: 3px 8px; font-size: 0.7rem; }
+  .status-badge { font-size: 0.6rem; padding: 1px 5px; }
+}
 
 /* 2CP bar */
 .tcp-bar { height: 36px; border-radius: 8px; overflow: hidden; display: flex; }
@@ -570,32 +580,40 @@ function computeData() {
   totalFormal = 0;
   var totalInformal = 0, boothsCounted = 0;
 
+  // booth counting, TCP, and booth informal from pollingPlaces
   booths.forEach(function(booth) {
     if (booth.pollingCandidates.some(function(c) { return c.formalVotes > 0; })) boothsCounted++;
     totalInformal += booth.informalVotes || 0;
     booth.pollingCandidates.forEach(function(p) {
       if (candidateVotes[p.candidateId]) {
-        candidateVotes[p.candidateId].votes += p.formalVotes;
         candidateVotes[p.candidateId].tcp += p.twoCandidatePref || 0;
       }
-      totalFormal += p.formalVotes;
     });
   });
 
-  // add declaration votes (postal, absent, etc.) from candidates array
-  var totalDecFormal = 0;
+  // formal votes from candidates[] — ordinaryVotes includes booth + absent ordinary,
+  // declarationVotes includes postal + other declarations (matches ECSA's own formula)
+  var boothFormal = 0;
   if (d.candidates) {
     d.candidates.forEach(function(c) {
-      var dv = c.declarationVotes || 0;
-      if (dv > 0 && candidateVotes[c.candidateId]) {
-        candidateVotes[c.candidateId].votes += dv;
-        totalDecFormal += dv;
+      if (candidateVotes[c.candidateId]) {
+        var ov = c.ordinaryVotes || 0;
+        var dv = c.declarationVotes || 0;
+        candidateVotes[c.candidateId].votes = ov + dv;
+        totalFormal += ov + dv;
       }
     });
-    totalFormal += totalDecFormal;
   }
-  var decInformal = d.informalDeclarationVotes || 0;
-  totalInformal += decInformal;
+  boothFormal = booths.reduce(function(s, b) {
+    return s + b.pollingCandidates.reduce(function(s2, c) { return s2 + c.formalVotes; }, 0);
+  }, 0);
+  var nonBoothFormal = totalFormal - boothFormal;
+
+  // informal from declarations + absent ordinary
+  totalInformal += d.informalDeclarationVotes || 0;
+  if (d.absentOrdinary) {
+    d.absentOrdinary.forEach(function(a) { totalInformal += a.informalVotes || 0; });
+  }
 
   window._stats = {
     totalFormal: totalFormal,
@@ -605,8 +623,7 @@ function computeData() {
     boothsCounted: boothsCounted,
     totalBooths: staticData.pollingPlaces.length,
     booths: booths,
-    declarationVotes: totalDecFormal,
-    declarationInformal: decInformal
+    declarationVotes: nonBoothFormal
   };
 }
 
