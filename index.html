@@ -345,8 +345,7 @@ tr:last-child td { border-bottom: none; }
   <div class="header">
     <h1><strong>Heysen</strong>SA State Election 2026 <button class="help-btn" onclick="showHelp()" title="How to use this tool">?</button></h1>
     <div class="header-right">
-      <div class="updated" id="lastUpdated">--</div>
-      <span class="status-badge" id="electionStatus">--</span>
+      <div class="updated"><span id="lastUpdated">--</span> · <span class="status-badge" id="electionStatus">--</span></div>
       <div class="controls">
         <button class="btn" id="refreshBtn" onclick="manualRefresh()">Refresh</button>
         <label class="auto-label">
@@ -410,14 +409,14 @@ tr:last-child td { border-bottom: none; }
 </div>
 </div>
 
-<div class="modal-overlay" id="helpModal">
+<div class="modal-overlay hidden" id="helpModal">
   <div class="modal">
     <h2>Heysen preference simulator</h2>
     <p>Live results from the ECSA feed, plus a preference flow simulator you can play with.</p>
 
     <h3>How it works</h3>
     <p>Candidates get eliminated from the bottom and their votes get redistributed. Use the sliders to set where you think those preferences go — or just pick a preset and tweak from there.</p>
-    <p>You can type vote numbers directly (e.g. <code>500</code>) or percentages (<code>25%</code>). Don't stress about getting totals to exactly 100%, it'll sort itself out.</p>
+    <p>You can type vote numbers directly (e.g. <code>500</code>) or percentages (<code>25%</code>). Each round shows its total — if it's not exactly 100%, the sim treats the remainder as exhausted votes.</p>
 
     <h3>Presets</h3>
     <ul>
@@ -448,10 +447,9 @@ var GREENS_2022_PCT = 19.7;
 function showHelp() { document.getElementById('helpModal').classList.remove('hidden'); }
 function hideHelp() {
   document.getElementById('helpModal').classList.add('hidden');
-  localStorage.setItem('heysen_help_seen', String(Date.now()));
+  document.cookie = 'heysen_help_seen=1; path=/; max-age=' + (86400 * 365) + '; SameSite=Strict; Secure';
 }
-var lastSeen = parseInt(localStorage.getItem('heysen_help_seen') || '0');
-if (Date.now() - lastSeen > 86400000) {
+if (!/heysen_help_seen=/.test(document.cookie)) {
   setTimeout(function() { showHelp(); }, 500);
 }
 document.getElementById('helpModal').addEventListener('click', function(e) {
@@ -564,7 +562,8 @@ function toggleAutoRefresh() {
 function computeData() {
   if (!staticData || !changeData) return;
   candidates = staticData.candidates;
-  var booths = changeData.district.pollingPlaces;
+  var d = changeData.district;
+  var booths = d.pollingPlaces;
 
   candidateVotes = {};
   candidates.forEach(function(c) { candidateVotes[c.candidateId] = { votes: 0, tcp: 0 }; });
@@ -583,6 +582,21 @@ function computeData() {
     });
   });
 
+  // add declaration votes (postal, absent, etc.) from candidates array
+  var totalDecFormal = 0;
+  if (d.candidates) {
+    d.candidates.forEach(function(c) {
+      var dv = c.declarationVotes || 0;
+      if (dv > 0 && candidateVotes[c.candidateId]) {
+        candidateVotes[c.candidateId].votes += dv;
+        totalDecFormal += dv;
+      }
+    });
+    totalFormal += totalDecFormal;
+  }
+  var decInformal = d.informalDeclarationVotes || 0;
+  totalInformal += decInformal;
+
   window._stats = {
     totalFormal: totalFormal,
     totalInformal: totalInformal,
@@ -590,7 +604,9 @@ function computeData() {
     enrolled: staticData.districtEnrolled,
     boothsCounted: boothsCounted,
     totalBooths: staticData.pollingPlaces.length,
-    booths: booths
+    booths: booths,
+    declarationVotes: totalDecFormal,
+    declarationInformal: decInformal
   };
 }
 
@@ -605,7 +621,7 @@ function render() {
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
   });
   var statusEl = document.getElementById('electionStatus');
-  statusEl.textContent = changeData.electionStatus;
+  statusEl.textContent = 'ECSA: ' + changeData.electionStatus;
   statusEl.className = 'status-badge ' + changeData.electionStatus;
 
   // hero
@@ -695,6 +711,7 @@ function renderStats(s) {
     '<div class="stat-row"><span class="label">Votes counted</span><span class="value">' + s.totalVotes.toLocaleString() + '</span></div>' +
     '<div class="stat-row"><span class="label">Turnout</span><span class="value">' + turnout.toFixed(1) + '%</span></div>' +
     '<div class="stat-row"><span class="label">Formal</span><span class="value">' + s.totalFormal.toLocaleString() + '</span></div>' +
+    (s.declarationVotes ? '<div class="stat-row"><span class="label" style="padding-left:12px;font-size:0.78rem;color:#999">incl. postal/dec</span><span class="value" style="font-size:0.78rem;color:#999">' + s.declarationVotes.toLocaleString() + '</span></div>' : '') +
     '<div class="stat-row"><span class="label">Informal</span><span class="value">' + s.totalInformal.toLocaleString() + ' (' + informal.toFixed(1) + '%)</span></div>' +
     '<div class="stat-row"><span class="label">Booths</span><span class="value">' + s.boothsCounted + ' / ' + s.totalBooths + '</span></div>' +
     '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + boothPct + '%"></div></div>';
